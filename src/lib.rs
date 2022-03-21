@@ -527,14 +527,30 @@ impl<T: AsRawFd> Async<T> {
     pub fn new(io: T) -> io::Result<Async<T>> {
         let fd = io.as_raw_fd();
 
-        // Put the file descriptor in non-blocking mode.
-        unsafe {
-            let mut res = libc::fcntl(fd, libc::F_GETFL);
-            if res != -1 {
-                res = libc::fcntl(fd, libc::F_SETFL, res | libc::O_NONBLOCK);
-            }
-            if res == -1 {
-                return Err(io::Error::last_os_error());
+        cfg_if::cfg_if! {
+            if #[cfg(target_os = "espidf")] {
+                extern "C" {
+                    fn fcntl(fd: libc::c_int, cmd: libc::c_int, arg: libc::c_int) -> libc::c_int;
+                }
+                unsafe {
+                    let mut res = fcntl(fd, libc::F_GETFL);
+                    if res != -1 {
+                        res = fcntl(fd, libc::F_SETFL, res | libc::O_NONBLOCK);
+                    }
+                    if res == -1 {
+                        return Err(io::Error::last_os_error());
+                    }
+                }
+            } else {
+                unsafe {
+                    let mut res = libc::fcntl(fd, libc::F_GETFL);
+                    if res != -1 {
+                        res = libc::fcntl(fd, libc::F_SETFL, res | libc::O_NONBLOCK);
+                    }
+                    if res == -1 {
+                        return Err(io::Error::last_os_error());
+                    }
+                }
             }
         }
 
