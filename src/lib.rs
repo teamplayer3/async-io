@@ -533,7 +533,7 @@ impl<T: AsRawFd> Async<T> {
                     fn fcntl(fd: libc::c_int, cmd: libc::c_int, arg: libc::c_int) -> libc::c_int;
                 }
                 unsafe {
-                    let mut res = fcntl(fd, libc::F_GETFL);
+                    let mut res = fcntl(fd, libc::F_GETFL, 0);
                     if res != -1 {
                         res = fcntl(fd, libc::F_SETFL, res | libc::O_NONBLOCK);
                     }
