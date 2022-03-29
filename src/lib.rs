@@ -530,13 +530,12 @@ impl<T: AsRawFd> Async<T> {
         cfg_if::cfg_if! {
             if #[cfg(target_os = "espidf")] {
                 extern "C" {
+                    static F_SETFL: *const F_SETFL;
+                    static O_NONBLOCK: *const O_NONBLOCK;
                     fn fcntl(fd: libc::c_int, cmd: libc::c_int, arg: libc::c_int) -> libc::c_int;
                 }
                 unsafe {
-                    let mut res = fcntl(fd, libc::F_GETFL, 0);
-                    if res != -1 {
-                        res = fcntl(fd, libc::F_SETFL, res | libc::O_NONBLOCK);
-                    }
+                    let mut res = fcntl(fd, F_SETFL, O_NONBLOCK);
                     if res == -1 {
                         return Err(io::Error::last_os_error());
                     }
