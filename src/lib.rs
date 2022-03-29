@@ -531,9 +531,9 @@ impl<T: AsRawFd> Async<T> {
             if #[cfg(target_os = "espidf")] {
                 extern "C" {
                     #[no_mangle]
-                    const F_SETFL: *const libc:c_int;
+                    const F_SETFL: *const libc::c_int;
                     #[no_mangle]
-                    const O_NONBLOCK: *const libc:c_int;
+                    const O_NONBLOCK: *const libc::c_int;
                     fn fcntl(fd: libc::c_int, cmd: libc::c_int, arg: libc::c_int) -> libc::c_int;
                 }
                 unsafe {
